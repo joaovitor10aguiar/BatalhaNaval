@@ -1,0 +1,38 @@
+/* src/pages/PosicionarNavios.css */
+.posicionar-container {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.tabuleiro {
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+.celula {
+  width: 35px;
+  height: 35px;
+  border: 1px solid #ccc;
+  background-color: #cfe9fd;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.celula:hover {
+  background-color: #d5f0ff;
+}
+
+.celula.selecionada {
+  background-color: #007bff;
+}
+
+.botao-confirmar {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-weight: bold;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}

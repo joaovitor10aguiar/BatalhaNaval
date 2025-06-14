@@ -1,0 +1,22 @@
+.celula {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  background-color: #cce7ff;
+  transition: background 0.2s ease, transform 0.2s ease;
+  user-select: none;
+}
+
+.celula:hover {
+  background-color: #a4d4ff;
+  transform: scale(1.05);
+}
+
+.celula:active {
+  transform: scale(0.95);
+}

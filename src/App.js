@@ -1,24 +1,32 @@
-import logo from './logo.svg';
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Registro from './pages/Registro';
+import Posicionamento from './pages/Posicionamento';
+import AguardandoOponente from './pages/AguardandoOponente';
+import PosicionarNavios from './pages/PosicionarNavios';
+import Jogar from './pages/Jogar';
+import AguardandoPosicionamento from './pages/AguardandoPosicionamento';
+import AguardandoConexao from './pages/AguardandoConexao';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/registro" element={<Registro />} />
+          <Route path="/posicionar" element={<Posicionamento />} />
+          <Route path="/posicionar" element={<PosicionarNavios />} />
+          <Route path="/aguardando-posicionamento" element={<AguardandoPosicionamento />} />
+          <Route path="/aguardando-oponente" element={<AguardandoOponente />} />
+          <Route path="/aguardando-conexao" element={<AguardandoConexao />} />  
+          <Route path="/jogar" element={<Jogar />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
