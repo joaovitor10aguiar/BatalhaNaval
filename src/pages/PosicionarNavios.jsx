@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import './PosicionarNavios.css';
 import { useNavigate } from 'react-router-dom';
 
-
 const LINHAS = 10;
 const COLUNAS = 10;
 
@@ -13,7 +12,7 @@ function PosicionarNavios() {
   const [mensagem, setMensagem] = useState('Posicione 1 navio de 3 células e 1 navio de 2 células.');
 
   const usuario = localStorage.getItem('usuario');
-  const numero_jogador = localStorage.getItem('numero_jogador');
+  const numero_jogador = Number(localStorage.getItem('numero_jogador')); // Correção aqui
 
   const toggleCelula = (linha, coluna) => {
     const key = `${linha},${coluna}`;
@@ -30,6 +29,14 @@ function PosicionarNavios() {
     }
   };
 
+  const gerarTabuleiroComNavios = () => {
+    const tabuleiro = Array(10).fill(null).map(() => Array(10).fill(''));
+    navios.forEach(({ linha, coluna }) => {
+      tabuleiro[linha][coluna] = '🚢';
+    });
+    return tabuleiro;
+  };
+
   const enviarPosicoes = async () => {
     if (navios.length !== 5) {
       setMensagem('Você precisa selecionar exatamente 5 posições.');
@@ -38,13 +45,18 @@ function PosicionarNavios() {
 
     try {
       await fetch('http://localhost:5000/posicionar', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ usuario, numero_jogador, navios }),
-});
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, numero_jogador, navios }),
+      });
 
-      navigate('/aguardando-oponente'); // Redireciona para tela de espera
+      // Salva visual local do tabuleiro
+      const tabuleiroProprio = gerarTabuleiroComNavios();
+      localStorage.setItem('tabuleiroProprio', JSON.stringify(tabuleiroProprio));
+
+      navigate('/aguardando-oponente');
     } catch (error) {
+      console.error(error);
       setMensagem('Erro ao enviar navios. Tente novamente.');
     }
   };
