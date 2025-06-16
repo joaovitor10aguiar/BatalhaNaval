@@ -5,7 +5,6 @@ import Home from './pages/Home';
 import Registro from './pages/Registro';
 import Posicionamento from './pages/Posicionamento';
 import AguardandoOponente from './pages/AguardandoOponente';
-import PosicionarNavios from './pages/PosicionarNavios';
 import Jogar from './pages/Jogar';
 import AguardandoPosicionamento from './pages/AguardandoPosicionamento';
 import AguardandoConexao from './pages/AguardandoConexao';
@@ -19,9 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/posicionar" element={<Posicionamento />} />
-          <Route path="/posicionar" element={<PosicionarNavios />} />
           <Route path="/aguardando-posicionamento" element={<AguardandoPosicionamento />} />
-          <Route path="/aguardando-oponente" element={<AguardandoOponente />} />
           <Route path="/aguardando-conexao" element={<AguardandoConexao />} />  
           <Route path="/jogar" element={<Jogar />} />
         </Routes>

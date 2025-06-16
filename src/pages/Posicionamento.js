@@ -1,3 +1,4 @@
+// src/pages/Posicionamento.js
 import React, { useState } from 'react';
 import Tabuleiro from '../components/Tabuleiro';
 import { useNavigate } from 'react-router-dom';
@@ -41,10 +42,36 @@ function Posicionamento() {
     }
   }
 
-  const iniciarPartida = () => {
-  localStorage.setItem('tabuleiroProprio', JSON.stringify(tabuleiro));
-  navigate('/jogar');
-};
+  const iniciarPartida = async () => {
+    const usuario = localStorage.getItem('usuario');
+    const numero_jogador = localStorage.getItem('numero_jogador');
+
+    // Extrair posições dos navios
+    const navios = [];
+    for (let i = 0; i < tabuleiro.length; i++) {
+      for (let j = 0; j < tabuleiro[i].length; j++) {
+        if (tabuleiro[i][j] === '🚢') {
+          navios.push({ linha: i, coluna: j });
+        }
+      }
+    }
+
+    // Enviar para o servidor
+    try {
+      await fetch('http://localhost:5000/posicionar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, numero_jogador, navios }),
+      });
+
+      // Salvar localmente
+      localStorage.setItem('tabuleiroProprio', JSON.stringify(tabuleiro));
+      navigate('/jogar');
+    } catch (error) {
+      console.error('Erro ao enviar navios:', error);
+      alert('Erro ao enviar navios. Tente novamente.');
+    }
+  };
 
   return (
     <div className="container-posicionar">
