@@ -61,52 +61,43 @@ def processar_jogada(data):
     usuario = data['usuario']
 
     if numero != vez_atual:
-        print(f">> Jogador {numero} tentou jogar fora de hora (vez atual: {vez_atual})")
         emit('erro', {'mensagem': 'Não é sua vez!'}, to=request.sid)
         return
-
-    print(f">> Jogador {numero} jogou em ({linha}, {coluna})")
 
     adversario = 2 if numero == 1 else 1
 
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
-    # Registrar o ataque
     c.execute('''
         INSERT INTO jogadas (usuario, numero_jogador, linha, coluna, tipo, timestamp)
         VALUES (?, ?, ?, ?, 'ataque', datetime("now"))
     ''', (usuario, numero, linha, coluna))
 
-    # Verificar se acertou um navio do adversário
     c.execute('''
         SELECT 1 FROM jogadas
         WHERE numero_jogador = ? AND linha = ? AND coluna = ? AND tipo = 'navio'
     ''', (adversario, linha, coluna))
     acerto = c.fetchone() is not None
 
-    # Buscar todas posições de navios do adversário
     c.execute('''
         SELECT linha, coluna FROM jogadas
         WHERE numero_jogador = ? AND tipo = 'navio'
     ''', (adversario,))
     navios_adversario = set(c.fetchall())
 
-    # Buscar todas jogadas de ataque feitas por mim
     c.execute('''
         SELECT linha, coluna FROM jogadas
         WHERE numero_jogador = ? AND tipo = 'ataque'
     ''', (numero,))
     meus_ataques = set(c.fetchall())
 
-    # Verificar se todas as posições de navios do adversário foram atingidas
     acertos_feitos = meus_ataques.intersection(navios_adversario)
     venceu = len(acertos_feitos) == len(navios_adversario) and len(navios_adversario) > 0
 
     conn.commit()
     conn.close()
 
-    # Enviar resultado da jogada para os dois jogadores
     for sid in jogadores:
         socketio.emit('resultado_jogada', {
             'linha': linha,
@@ -121,7 +112,6 @@ def processar_jogada(data):
             socketio.emit('fim_de_jogo', {'vencedor': numero}, to=sid)
         return
 
-    # Alternar vez
     vez_atual = adversario
     for sid, info in jogadores.items():
         if info.get('numero') == vez_atual:
@@ -138,7 +128,6 @@ def registrar():
     if not nome or not usuario:
         return jsonify({"status": "erro", "mensagem": "Nome e usuário são obrigatórios."}), 400
 
-    # Verifica quais números já foram atribuídos
     numeros_existentes = {info['numero'] for info in jogadores.values()}
     if 1 not in numeros_existentes:
         numero = 1
@@ -157,7 +146,6 @@ def registrar():
     print(f"Jogador {numero} registrado: {usuario}")
     return jsonify({"status": "ok", "numero_jogador": numero, "usuario": usuario})
 
-
 @app.route('/posicionar', methods=['POST'])
 def posicionar():
     data = request.json
@@ -173,6 +161,91 @@ def posicionar():
             jogadores[sid] = info
 
     return jsonify({"status": "ok"})
+
+@app.route('/estado/<int:numero_jogador>', methods=['GET'])
+def estado_partida(numero_jogador):
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute('''
+        SELECT linha, coluna FROM jogadas
+        WHERE numero_jogador = ? AND tipo = 'ataque'
+    ''', (numero_jogador,))
+    ataques_feitos = c.fetchall()
+
+    adversario = 2 if numero_jogador == 1 else 1
+    c.execute('''
+        SELECT linha, coluna FROM jogadas
+        WHERE numero_jogador = ? AND tipo = 'ataque'
+    ''', (adversario,))
+    ataques_recebidos = c.fetchall()
+
+    c.execute('''
+        SELECT linha, coluna FROM jogadas
+        WHERE numero_jogador = ? AND tipo = 'navio'
+    ''', (numero_jogador,))
+    navios = c.fetchall()
+
+    conn.close()
+
+    return jsonify({
+        'ataques_feitos': ataques_feitos,
+        'ataques_recebidos': ataques_recebidos,
+        'navios': navios
+    })
+
+# -----------------------------
+# NOVA LÓGICA DE REINÍCIO DE PARTIDA
+# -----------------------------
+
+@app.route('/solicitar_reinicio', methods=['POST'])
+def solicitar_reinicio():
+    data = request.json
+    numero = data.get('numero_jogador')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute('DELETE FROM reinicio_partida')  # Reinicia solicitações anteriores
+    c.execute('INSERT INTO reinicio_partida (id_partida, jogador, confirmou) VALUES (1, ?, 1)', (numero,))
+    conn.commit()
+
+    adversario = 2 if numero == 1 else 1
+    sid_adversario = sockets_por_numero.get(adversario)
+    if sid_adversario:
+        socketio.emit('solicitacao_reinicio', {'de': numero}, to=sid_adversario)
+
+    return jsonify({"status": "aguardando_confirmacao"})
+
+@socketio.on('confirmar_reinicio')
+def confirmar_reinicio(data):
+    numero = data.get('numero_jogador')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute('INSERT INTO reinicio_partida (id_partida, jogador, confirmou) VALUES (1, ?, 1)', (numero,))
+    conn.commit()
+
+    c.execute('SELECT COUNT(*) FROM reinicio_partida WHERE confirmou = 1')
+    total = c.fetchone()[0]
+    conn.close()
+
+    if total >= 2:
+        print("Reiniciando partida para ambos os jogadores.")
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('DELETE FROM jogadas')  # Limpa jogadas mas preserva histórico
+        c.execute('DELETE FROM reinicio_partida')  # Limpa confirmações
+        conn.commit()
+        conn.close()
+
+        # Reiniciar estado
+        global vez_atual
+        vez_atual = 1
+        for sid in jogadores:
+            jogadores[sid]['pronto'] = False
+            socketio.emit('reiniciar_posicionamento', {}, to=sid)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
