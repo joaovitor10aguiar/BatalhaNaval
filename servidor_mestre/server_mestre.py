@@ -11,7 +11,6 @@ jogadores = {}  # socket_id: {nome, usuario, numero, pronto}
 sockets_por_numero = {}  # numero_jogador: socket_id
 vez_atual = 1  # Começa com o jogador 1
 
-# Banco de dados para registrar navios
 def registrar_navios(usuario, numero, navios):
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
@@ -108,6 +107,25 @@ def processar_jogada(data):
 
     if venceu:
         print(f">> Jogador {numero} venceu a partida!")
+
+        if numero == 1:
+            jogador1 = usuario
+            jogador2 = next((j['usuario'] for j in jogadores.values() if j.get('numero') == 2), 'Adversario')
+            vencedor_str = 'jogador1'
+        else:
+            jogador2 = usuario
+            jogador1 = next((j['usuario'] for j in jogadores.values() if j.get('numero') == 1), 'Adversario')
+            vencedor_str = 'jogador2'
+
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO historico_partidas (jogador1, jogador2, vencedor)
+            VALUES (?, ?, ?)
+        ''', (jogador1, jogador2, vencedor_str))
+        conn.commit()
+        conn.close()
+
         for sid in jogadores:
             socketio.emit('fim_de_jogo', {'vencedor': numero}, to=sid)
         return
@@ -194,10 +212,6 @@ def estado_partida(numero_jogador):
         'navios': navios
     })
 
-# -----------------------------
-# NOVA LÓGICA DE REINÍCIO DE PARTIDA
-# -----------------------------
-
 @app.route('/solicitar_reinicio', methods=['POST'])
 def solicitar_reinicio():
     data = request.json
@@ -206,7 +220,7 @@ def solicitar_reinicio():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
-    c.execute('DELETE FROM reinicio_partida')  # Reinicia solicitações anteriores
+    c.execute('DELETE FROM reinicio_partida')
     c.execute('INSERT INTO reinicio_partida (id_partida, jogador, confirmou) VALUES (1, ?, 1)', (numero,))
     conn.commit()
 
@@ -235,17 +249,53 @@ def confirmar_reinicio(data):
         print("Reiniciando partida para ambos os jogadores.")
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute('DELETE FROM jogadas')  # Limpa jogadas mas preserva histórico
-        c.execute('DELETE FROM reinicio_partida')  # Limpa confirmações
+        c.execute('DELETE FROM jogadas')
+        c.execute('DELETE FROM reinicio_partida')
         conn.commit()
         conn.close()
 
-        # Reiniciar estado
         global vez_atual
         vez_atual = 1
         for sid in jogadores:
             jogadores[sid]['pronto'] = False
             socketio.emit('reiniciar_posicionamento', {}, to=sid)
+
+@app.route('/placar', methods=['GET'])
+def placar():
+    jogador1 = request.args.get('jogador1')
+    jogador2 = request.args.get('jogador2')
+
+    if not jogador1 or not jogador2:
+        return jsonify({'erro': 'Jogadores não especificados'}), 400
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute('''
+        SELECT jogador1, jogador2, vencedor FROM historico_partidas
+        WHERE (jogador1 = ? AND jogador2 = ?) OR (jogador1 = ? AND jogador2 = ?)
+    ''', (jogador1, jogador2, jogador2, jogador1))
+
+    partidas = c.fetchall()
+    conn.close()
+
+    v1 = v2 = empates = 0
+    for j1, j2, vencedor in partidas:
+        if vencedor == 'empate':
+            empates += 1
+        elif (vencedor == 'jogador1' and j1 == jogador1) or (vencedor == 'jogador2' and j2 == jogador1):
+            v1 += 1
+        elif (vencedor == 'jogador1' and j1 == jogador2) or (vencedor == 'jogador2' and j2 == jogador2):
+            v2 += 1
+
+    return jsonify({
+        'jogador1': jogador1,
+        'jogador2': jogador2,
+        'vitorias_jogador1': v1,
+        'vitorias_jogador2': v2,
+        'empates': empates,
+        'total': len(partidas)
+    })
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

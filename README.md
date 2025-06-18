@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# 🛳️ Batalha Naval Multiplayer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este é um jogo multiplayer de Batalha Naval, desenvolvido com **React** no front-end e **Flask + Socket.IO** no back-end. O projeto conta com funcionalidades em tempo real, posicionamento de navios, alternância de turnos e reconexão de estado.
 
-## Available Scripts
+## 🚀 Tecnologias Utilizadas
 
-In the project directory, you can run:
+* React (Front-end)
+* Flask (Back-end)
+* Flask-SocketIO (Comunicação em tempo real)
+* Flask-CORS (Permissões entre origens)
+* SQLite (Banco de dados leve)
+* SweetAlert2 (Alertas visuais)
 
-### `npm start`
+## 🧠 Funcionalidades
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* ✅ Multiplayer em tempo real via sockets
+* ✅ Posicionamento visual dos navios
+* ✅ Controle de vez (turnos alternados)
+* ✅ Persistência dos dados mesmo após recarregar a página
+* ✅ Sistema de reinício de partida com confirmação entre os jogadores
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+> ⚠️ O sistema de placar histórico está em desenvolvimento e poderá ser aprimorado em versões futuras.
 
-### `npm test`
+## 🎮 Como Rodar Localmente
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Requisitos
 
-### `npm run build`
+**Backend (Python):**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+pip install flask
+pip install flask_cors
+pip install flask_socketio
+pip install flask_sqlalchemy
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Frontend (Node.js):**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
+```
 
-### `npm run eject`
+> Certifique-se de ter Python e Node.js instalados no seu sistema.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🔧 Passo a Passo para Rodar
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Abra **três terminais**:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Terminal 1 – Servidor Mestre (Flask)
 
-## Learn More
+```bash
+cd servidor_mestre
+python server_mestre.py
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Terminal 2 – Jogador 1 (React)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm install
+npm start
+```
 
-### Code Splitting
+### Terminal 3 – Jogador 2 (React em outra porta)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+set PORT=3001
+npm start
+```
 
-### Analyzing the Bundle Size
+> ⚠️ É essencial rodar o segundo jogador em outra porta (3001).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 🤝 Contribuindo
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Sinta-se à vontade para abrir *issues* com melhorias ou relatar bugs.
 
-### Advanced Configuration
+## 📌 Melhorias Futuras
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+* Placar histórico completo e confiável
+* Tela de início com nomes dos jogadores e histórico
+* Sons e animações visuais durante os ataques
+* Melhoria na interface para dispositivos móveis
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Desenvolvido com dedicação por [João Vitor, Raissa Rodrigues, Tayná Mariana, Alef Cezario, Brener Luciano, Elias Victor, Guilherme Ryan e José Vieira ](https://github.com/JoaoVitorAguiar).
