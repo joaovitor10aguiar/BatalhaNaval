@@ -10,7 +10,6 @@ function Jogar() {
   const [tabuleiroInimigo, setTabuleiroInimigo] = useState(gerarTabuleiroVazio());
   const [vezDoJogador, setVezDoJogador] = useState(false);
   const [mensagem, setMensagem] = useState('Aguardando adversário...');
-  const [usuarios, setUsuarios] = useState({ 1: '', 2: '' });
   const navigate = useNavigate();
 
   const numeroJogador = Number(localStorage.getItem('numero_jogador')) || 1;
@@ -144,29 +143,6 @@ function Jogar() {
     });
   }
 
-  function mostrarPlacar() {
-    const adversarioNum = numeroJogador === 1 ? 2 : 1;
-    const usuarioAdversario = localStorage.getItem(`usuario_jogador_${adversarioNum}`) || 'Adversário';
-
-    fetch(`http://localhost:5000/placar?jogador1=${usuario}&jogador2=${usuarioAdversario}`)
-      .then(res => res.json())
-      .then(data => {
-        Swal.fire({
-          title: `📊 Placar entre ${data.jogador1} e ${data.jogador2}`,
-          html: `
-            <p>🏆 Vitórias de ${data.jogador1}: <strong>${data.vitorias_jogador1}</strong></p>
-            <p>🏆 Vitórias de ${data.jogador2}: <strong>${data.vitorias_jogador2}</strong></p>
-            <p>🤝 Empates: <strong>${data.empates}</strong></p>
-            <p>🎮 Partidas totais: <strong>${data.total}</strong></p>
-          `,
-          confirmButtonText: 'Fechar'
-        });
-      })
-      .catch(() => {
-        Swal.fire('Erro', 'Não foi possível carregar o placar', 'error');
-      });
-  }
-
   return (
     <div className="App">
       <h1>Batalha Naval</h1>
@@ -181,9 +157,6 @@ function Jogar() {
       <div className="botoes-controle">
         <button className="botao-reiniciar" onClick={solicitarReinicio}>
           🔁 Solicitar Reinício
-        </button>
-        <button className="botao-placar" onClick={mostrarPlacar}>
-          📊 Ver Placar
         </button>
       </div>
     </div>

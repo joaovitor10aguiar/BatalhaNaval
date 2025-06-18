@@ -43,6 +43,7 @@ function Registro() {
 
   return (
     <div className="container">
+      <br/>
       <h2>Registro de Jogador</h2>
       <input
         type="text"
