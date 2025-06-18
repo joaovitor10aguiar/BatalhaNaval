@@ -1,6 +1,7 @@
 <p align="center">
-   <img src="imagens/capa-batalha-naval.jpg" width="800" alt="Capa do Projeto Batalha Naval" />
+  <img src="imagens/capa-batalha-naval.jpg" style="max-width: 100%;" alt="Capa do Projeto Batalha Naval" />
 </p>
+
 
 # 🛳️ Batalha Naval Multiplayer
 
