@@ -84,6 +84,4 @@ Sinta-se à vontade para abrir *issues* com melhorias ou relatar bugs.
 * Sons e animações visuais durante os ataques
 * Melhoria na interface para dispositivos móveis
 
----
 
-Desenvolvido com dedicação por [João Vitor, Raissa Rodrigues, Tayná Mariana, Alef Cezario, Brener Luciano, Elias Victor, Guilherme Ryan e José Vieira ](https://github.com/JoaoVitorAguiar).
