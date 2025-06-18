@@ -1,3 +1,7 @@
+<p align="center">
+   <img src="imagens/capa-batalha-naval.jpg" width="600" alt="Capa do Projeto Batalha Naval" />
+</p>
+
 # 🛳️ Batalha Naval Multiplayer
 
 Este é um jogo multiplayer de Batalha Naval, desenvolvido com **React** no front-end e **Flask + Socket.IO** no back-end. O projeto conta com funcionalidades em tempo real, posicionamento de navios, alternância de turnos e reconexão de estado.
